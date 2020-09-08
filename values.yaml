@@ -1,0 +1,115 @@
+# Default values for demo.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+replicaCount: 1
+
+podAnnotations:
+  prometheus.io/scrape: "true"
+
+image:
+  repository: dkr.ecr.ap-southeast-1.amazonaws.com/api-demo
+  pullPolicy: Always
+imagePullSecrets: aws-ecr-credential
+
+nameOverride: ""
+fullnameOverride: ""
+configmap: demo
+service:
+  type: ClusterIP
+  port: 80
+  dstPort: 8080
+
+ingress:
+  enabled: true
+  annotations:
+    kubernetes.io/ingress.class: apps
+    # nginx.ingress.kubernetes.io/rewrite-target: /$1
+    nginx.ingress.kubernetes.io/cors-allow-headers: "x-app-version,x-api-key,Authorization"
+    nginx.ingress.kubernetes.io/server-snippet: |-
+      location ~* ^/(metrics|health|liveness|debug) {
+      error_page 404 /404.html;
+      }
+      if ($http_user_agent !~* "(okhttp|Go-http|Java)" ) {
+        return 405; 
+      }
+  hosts:
+    - host: demo.api.blast.co.id
+      paths: []
+
+resources:
+  limits:
+    cpu: 600m
+    memory: 600Mi
+  requests:
+    cpu: 400m
+    memory: 256Mi
+
+autoscaller:
+  replicas:
+    min: 4
+    max: 20
+  utilization:
+    cpu: 75
+    memory: 75
+
+livenessProbe:
+  failureThreshold: 3
+  httpGet:
+    path: /liveness
+    port: 8080
+    scheme: HTTP
+  initialDelaySeconds: 10
+  periodSeconds: 5
+  successThreshold: 1
+  timeoutSeconds: 3
+
+readinessProbe:
+  failureThreshold: 3
+  httpGet:
+    path: /health
+    port: 8080
+    scheme: HTTP
+  initialDelaySeconds: 10
+  periodSeconds: 5
+  successThreshold: 1
+  timeoutSeconds: 3
+
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: false
+  # Annotations to add to the service account
+  annotations: {}
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+    # name: demo-sa
+    # namespace: demo
+    # secrets:
+    # - name: demo-secret
+
+# podSecurityContext: {}
+  # fsGroup: 2000
+
+# securityContext: {}
+  # capabilities:
+  #   drop:
+  #   - ALL
+  # readOnlyRootFilesystem: true
+  # runAsNonRoot: true
+  # runAsUser: 1000
+
+    # kubernetes.io/tls-acme: "true"
+  # hosts:
+  #   - host: chart-example.local
+  #     paths: []
+  # tls: []
+  #  - secretName: chart-example-tls
+  #    hosts:
+  #      - chart-example.local
+
+nodeSelector:
+  target: demo
+
+# tolerations: []
+
+# affinity: {}
