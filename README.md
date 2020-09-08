@@ -1,5 +1,6 @@
 # helm-microservices-demo
 This project is only for demo purpose.
+The deployment will use Helm v3
 It contains custom Helm chart template for sample stateless go microservices app.
 The chart template contains kubernetes object such as:
 1. Deployment: 
@@ -14,8 +15,7 @@ The chart template contains kubernetes object such as:
 3. Ingress 
   - Ingress Annotation: to assign ingress nginx policy from ingress nginx controller, loadbalancer, or cert-manager,etc
   - Ingress rule: to specify routing policy and specify with services to exposed by the ingress.
-4. Horizontal Pod Autoscaler (autoscaling policy[min and max replica], metrics:CPU & memory utilization that trigger pod autoscaling.)
-  - scaleTargetRef: to specify which deployment should adopt the HPA
+4. Horizontal Pod Autoscaler
   - Min/max replicas: to assign the minimum and max number of pods contstraint
   - Resource utilization: to assign the value of CPU & memory metrics constraint should autoscaling pod is triggered.
 
